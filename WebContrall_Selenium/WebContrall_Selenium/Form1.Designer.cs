@@ -1,4 +1,6 @@
-﻿namespace WebContrall_Selenium
+﻿using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace WebContrall_Selenium
 {
     partial class Form1
     {
@@ -30,7 +32,9 @@
         {
             label1 = new Label();
             dateLable = new Label();
-            button1 = new Button();
+            statusLabe = new Label();
+            TotalBrowservolumeLable = new Label();
+            button1 = new System.Windows.Forms.Button();
             dateTimePicker1 = new DateTimePicker();
             SuspendLayout();
             // 
@@ -42,8 +46,7 @@
             label1.Name = "label1";
             label1.Size = new Size(784, 80);
             label1.TabIndex = 0;
-            label1.Text = "날자 : 선택 날자로 고정\r\n시간 : 선택 시간 이후 시간대중 가장 가까운시간으로 예약됨";
-            label1.Click += label1_Click;
+            label1.Text = "날자 : 선택 날자로 고정\r\n시간 : 선택 시간과 같거나 이후 가장 가까운시간으로 예약됨";
             // 
             // dateLable
             // 
@@ -53,7 +56,24 @@
             dateLable.Size = new Size(219, 32);
             dateLable.TabIndex = 3;
             dateLable.Text = "날자 및 시간 선택 :";
-            dateLable.Click += dateLable_Click;
+            // 
+            // statusLabe
+            // 
+            statusLabe.AutoSize = true;
+            statusLabe.Location = new Point(12, 265);
+            statusLabe.Name = "statusLabe";
+            statusLabe.Size = new Size(83, 32);
+            statusLabe.TabIndex = 4;
+            statusLabe.Text = "상태 : ";
+            // 
+            // TotalBrowservolumeLable
+            // 
+            TotalBrowservolumeLable.AutoSize = true;
+            TotalBrowservolumeLable.Location = new Point(17, 314);
+            TotalBrowservolumeLable.Name = "TotalBrowservolumeLable";
+            TotalBrowservolumeLable.Size = new Size(78, 32);
+            TotalBrowservolumeLable.TabIndex = 5;
+            TotalBrowservolumeLable.Text = "현재 실행중인 브라우저 수 : 0";
             // 
             // button1
             // 
@@ -81,10 +101,12 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImageLayout = ImageLayout.Center;
             ClientSize = new Size(825, 446);
-            Controls.Add(dateLable);
-            Controls.Add(dateTimePicker1);
-            Controls.Add(button1);
             Controls.Add(label1);
+            Controls.Add(statusLabe);
+            Controls.Add(dateLable);
+            Controls.Add(TotalBrowservolumeLable);
+            Controls.Add(button1);
+            Controls.Add(dateTimePicker1);
             Font = new Font("맑은 고딕", 12F, FontStyle.Regular, GraphicsUnit.Point, 129);
             Margin = new Padding(4);
             Name = "Form1";
@@ -98,7 +120,9 @@
 
         private Label label1;
         private Label dateLable;
-        private Button button1;
+        private Label statusLabe;
+        private Label TotalBrowservolumeLable;
+        private System.Windows.Forms.Button button1;
         private DateTimePicker dateTimePicker1;
     }
 }
