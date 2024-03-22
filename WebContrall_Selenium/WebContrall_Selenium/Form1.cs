@@ -103,7 +103,7 @@ namespace WebContrall_Selenium
                     // 이부분에 계속해서 새로고침 하면서
                     // fnChoiceDate(this, '2024-03-24', 'IMPOSS'); -> fnChoiceDate(this, '2024-03-24', 'POSS'); 로바뀔때까지 대기해야함
                     // 새로고침 태그 : <li><a href="javascript:fnCourseTimeReset();" class="reflash_btn">새로고침</a></li> 
-                    jsExecutor.ExecuteScript("arguments[0].onclick()", DayTag);
+                    jsExecutor.ExecuteScript("fnChoiceDate(this, 'arguments[0]', 'TODAY');", purposeYearMonthDay.ToString());
 
                     /*주석 : HourMinuteTagsCollection
                     해당 HTML 태그
