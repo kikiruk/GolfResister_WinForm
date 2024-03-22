@@ -8,7 +8,8 @@ using System.CodeDom.Compiler;
 using System.Windows.Forms;
 using OpenQA.Selenium.DevTools.V120.Debugger;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using SeleniumExtras.WaitHelpers; // 삭제할지 고려해보기 ( alert 창 나올때까지 기다릴 수 있는 라이브러리)
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
 
 //담주화요일 9시30분에 최종테스트
 
@@ -28,7 +29,11 @@ namespace WebContrall_Selenium
         {
             BrowserNumber = 1;
             TotalBrowservolume = 0;
+
             setStatusLabe("실행 전");
+
+            // WebDriverManager를 사용하여 ChromeDriver를 자동으로 설정합니다.
+            new DriverManager().SetUpDriver(new ChromeConfig());
         }
 
         private void LoginAndGoToReservationAndReady(IWebDriver driver, IJavaScriptExecutor jsExecutor)
