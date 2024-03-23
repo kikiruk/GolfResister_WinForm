@@ -11,6 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
 using AngleSharp.Dom;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 //담주화요일 9시30분에 최종테스트
 
@@ -127,15 +128,15 @@ namespace WebContrall_Selenium
                     // onclick 속성에서 숫자 추출 및 정렬하는 람다식 사용
                     IReadOnlyCollection<IWebElement> hourMinuteTagsCollection = driver.FindElements(By.XPath("//a[contains(@onclick, 'fnChoiceCourseTime(this,')]"));
                     List<IWebElement> sortedList = hourMinuteTagsCollection.Select(tag => new
-                        {
-                            Element = tag,
-                            SortKey = int.TryParse(tag.GetAttribute("onclick").Substring(Math.Max(0, tag.GetAttribute("onclick").Length - 7), 4), out int number) ? number : int.MaxValue
-                        })
+                    {
+                        Element = tag,
+                        SortKey = int.TryParse(tag.GetAttribute("onclick").Substring(Math.Max(0, tag.GetAttribute("onclick").Length - 7), 4), out int number) ? number : int.MaxValue
+                    })
                         .OrderBy(item => item.SortKey)
                         .Select(item => item.Element)
                         .ToList();
 
-                    foreach (IWebElement hourMinuteTag in hourMinuteTagsCollection)
+                    foreach (IWebElement hourMinuteTag in sortedList)
                     {
                         //onClickVaue 는 onclick 시 호출되는자바스크립트 함수를 문자열로 나타낸것이다.
                         string onClickValue = hourMinuteTag.GetAttribute("onclick");
