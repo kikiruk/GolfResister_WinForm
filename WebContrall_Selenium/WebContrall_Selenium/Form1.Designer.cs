@@ -34,8 +34,13 @@ namespace WebContrall_Selenium
             dateLable = new Label();
             statusLabe = new Label();
             TotalBrowservolumeLable = new Label();
-            button1 = new System.Windows.Forms.Button();
-            dateTimePicker1 = new DateTimePicker();
+            startButton = new System.Windows.Forms.Button();
+            stopButton = new System.Windows.Forms.Button();
+            dateTimePicker = new DateTimePicker();
+            selectBrowserVolume = new NumericUpDown();
+            selectBrowserVolumeLable = new Label();
+            exitBrowsersButton = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)selectBrowserVolume).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -51,7 +56,7 @@ namespace WebContrall_Selenium
             // dateLable
             // 
             dateLable.AutoSize = true;
-            dateLable.Location = new Point(330, 110);
+            dateLable.Location = new Point(17, 177);
             dateLable.Name = "dateLable";
             dateLable.Size = new Size(219, 32);
             dateLable.TabIndex = 3;
@@ -60,40 +65,78 @@ namespace WebContrall_Selenium
             // statusLabe
             // 
             statusLabe.AutoSize = true;
-            statusLabe.Location = new Point(12, 265);
+            statusLabe.Font = new Font("맑은 고딕", 8F);
+            statusLabe.Location = new Point(17, 392);
             statusLabe.Name = "statusLabe";
-            statusLabe.Size = new Size(83, 32);
+            statusLabe.Size = new Size(58, 21);
             statusLabe.TabIndex = 4;
             statusLabe.Text = "상태 : ";
             // 
             // TotalBrowservolumeLable
             // 
             TotalBrowservolumeLable.AutoSize = true;
-            TotalBrowservolumeLable.Location = new Point(17, 314);
+            TotalBrowservolumeLable.Font = new Font("맑은 고딕", 8F);
+            TotalBrowservolumeLable.Location = new Point(17, 413);
             TotalBrowservolumeLable.Name = "TotalBrowservolumeLable";
-            TotalBrowservolumeLable.Size = new Size(78, 32);
+            TotalBrowservolumeLable.Size = new Size(229, 21);
             TotalBrowservolumeLable.TabIndex = 5;
             TotalBrowservolumeLable.Text = "현재 실행중인 브라우저 수 : 0";
             // 
-            // button1
+            // startButton
             // 
-            button1.Location = new Point(12, 110);
-            button1.Name = "button1";
-            button1.Size = new Size(286, 125);
-            button1.TabIndex = 1;
-            button1.Text = "실행";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            startButton.Location = new Point(12, 297);
+            startButton.Name = "startButton";
+            startButton.Size = new Size(228, 92);
+            startButton.TabIndex = 1;
+            startButton.Text = "실행";
+            startButton.UseVisualStyleBackColor = true;
+            startButton.Click += startButton_Click;
             // 
-            // dateTimePicker1
+            // stopButton
             // 
-            dateTimePicker1.CustomFormat = "yyyy-MM-dd HH:mm";
-            dateTimePicker1.Format = DateTimePickerFormat.Custom;
-            dateTimePicker1.Location = new Point(566, 110);
-            dateTimePicker1.Name = "dateTimePicker1";
-            dateTimePicker1.ShowUpDown = true;
-            dateTimePicker1.Size = new Size(230, 39);
-            dateTimePicker1.TabIndex = 2;
+            stopButton.Location = new Point(300, 297);
+            stopButton.Name = "stopButton";
+            stopButton.Size = new Size(217, 92);
+            stopButton.TabIndex = 8;
+            stopButton.Text = "일시정지";
+            stopButton.UseVisualStyleBackColor = true;
+            stopButton.Click += stopButton_Click;
+            // 
+            // dateTimePicker
+            // 
+            dateTimePicker.CustomFormat = "yyyy-MM-dd HH:mm";
+            dateTimePicker.Format = DateTimePickerFormat.Custom;
+            dateTimePicker.Location = new Point(238, 177);
+            dateTimePicker.Name = "dateTimePicker";
+            dateTimePicker.ShowUpDown = true;
+            dateTimePicker.Size = new Size(230, 39);
+            dateTimePicker.TabIndex = 2;
+            // 
+            // selectBrowserVolume
+            // 
+            selectBrowserVolume.Location = new Point(238, 222);
+            selectBrowserVolume.Name = "selectBrowserVolume";
+            selectBrowserVolume.Size = new Size(180, 39);
+            selectBrowserVolume.TabIndex = 9;
+            // 
+            // selectBrowserVolumeLable
+            // 
+            selectBrowserVolumeLable.AutoSize = true;
+            selectBrowserVolumeLable.Location = new Point(17, 222);
+            selectBrowserVolumeLable.Name = "selectBrowserVolumeLable";
+            selectBrowserVolumeLable.Size = new Size(211, 32);
+            selectBrowserVolumeLable.TabIndex = 10;
+            selectBrowserVolumeLable.Text = "브라우저 창 개수 :";
+            // 
+            // exitBrowsersButton
+            // 
+            exitBrowsersButton.Location = new Point(579, 297);
+            exitBrowsersButton.Name = "exitBrowsersButton";
+            exitBrowsersButton.Size = new Size(217, 92);
+            exitBrowsersButton.TabIndex = 11;
+            exitBrowsersButton.Text = "브라우저 종료";
+            exitBrowsersButton.UseVisualStyleBackColor = true;
+            exitBrowsersButton.Click += exitBrowsersButton_Click;
             // 
             // Form1
             // 
@@ -101,17 +144,22 @@ namespace WebContrall_Selenium
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImageLayout = ImageLayout.Center;
             ClientSize = new Size(825, 446);
+            Controls.Add(exitBrowsersButton);
+            Controls.Add(selectBrowserVolumeLable);
+            Controls.Add(selectBrowserVolume);
+            Controls.Add(stopButton);
             Controls.Add(label1);
             Controls.Add(statusLabe);
             Controls.Add(dateLable);
             Controls.Add(TotalBrowservolumeLable);
-            Controls.Add(button1);
-            Controls.Add(dateTimePicker1);
+            Controls.Add(startButton);
+            Controls.Add(dateTimePicker);
             Font = new Font("맑은 고딕", 12F, FontStyle.Regular, GraphicsUnit.Point, 129);
             Margin = new Padding(4);
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
+            ((System.ComponentModel.ISupportInitialize)selectBrowserVolume).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -122,7 +170,11 @@ namespace WebContrall_Selenium
         private Label dateLable;
         private Label statusLabe;
         private Label TotalBrowservolumeLable;
-        private System.Windows.Forms.Button button1;
-        private DateTimePicker dateTimePicker1;
+        private System.Windows.Forms.Button startButton;
+        private DateTimePicker dateTimePicker;
+        private System.Windows.Forms.Button stopButton;
+        private NumericUpDown selectBrowserVolume;
+        private Label selectBrowserVolumeLable;
+        private System.Windows.Forms.Button exitBrowsersButton;
     }
 }
