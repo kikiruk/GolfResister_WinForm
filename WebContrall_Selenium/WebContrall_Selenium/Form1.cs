@@ -179,12 +179,6 @@ namespace WebContrall_Selenium
                     continue;
                 }
 
-                // 개인정보 수집 및 이용 동의 체크 미리해두기
-                jsExecutor.ExecuteScript("document.getElementById('golfAgreeY').checked = true;");
-
-                // 메시지 수신 동의 거부
-                jsExecutor.ExecuteScript("document.getElementById('send_sms_yn').checked = false;");
-
                 foreach (IWebElement hourMinuteTag in sortedList)
                 {
                     //onClickVaue 는 onclick 시 호출되는자바스크립트 함수를 문자열로 나타낸것이다.
@@ -200,6 +194,12 @@ namespace WebContrall_Selenium
                         try
                         {
                             jsExecutor.ExecuteScript("arguments[0].onclick()", hourMinuteTag);
+
+                            // 개인정보 수집 및 이용 동의 체크 미리해두기 시간대 클릭 후가 가장 시간이 여유롭기에, 시간대 클릭부터 함
+                            jsExecutor.ExecuteScript("document.getElementById('golfAgreeY').checked = true;");
+
+                            // 메시지 수신 동의 거부
+                            jsExecutor.ExecuteScript("document.getElementById('send_sms_yn').checked = false;");
 
                             if (bResisterSuccess == false)
                             {
@@ -277,10 +277,11 @@ namespace WebContrall_Selenium
             startButton.Enabled = false; // 실행 중에는 실행 버튼을 비활성화
             stopButton.Enabled = true; // 일시 정지 버튼 활성화
             exitBrowsersButton.Enabled = true; // 종료 버튼 활성화
+            bResisterSuccess = false;  // 성공여부 초기화
 
             List<Task> bookingTasks = new List<Task>();
 
-            for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false; i++)
+            for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false; i++)
             { 
                 // ChromeDriver 서비스를 설정하여 콘솔 창을 숨깁니다.
                 ChromeDriverService service = ChromeDriverService.CreateDefaultService();
