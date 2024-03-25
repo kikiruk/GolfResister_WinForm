@@ -201,7 +201,7 @@ namespace WebContrall_Selenium
 
                             if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
-                                //jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
+                                jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
                                 setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
                                            purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
                                 bResisterSuccess = true;
