@@ -26,6 +26,7 @@ namespace WebContrall_Selenium
         private bool bShouldProgramPause;
         private bool bShouldExitProgram;
         private bool bResisterSuccess;
+        private bool bResisterImpossible;
 
         public Form1()
         {
@@ -39,7 +40,8 @@ namespace WebContrall_Selenium
             tryingRegisterCount = 0;
             bShouldProgramPause = false;
             bShouldExitProgram = false;
-            bResisterSuccess = false;
+            bResisterSuccess = true;
+            bResisterImpossible = false;
 
             startButton.Enabled = true; // 실행 버튼을 활성화
             stopButton.Enabled = false; // 일시 정지 버튼 비활성화
@@ -121,7 +123,7 @@ namespace WebContrall_Selenium
                 {
                     jsExecutor.ExecuteScript("arguments[0].onclick()", dayTag);
 
-                    setStatusLabe((tryingRegisterCount++).ToString() + " 번째 시도중", browserNumber);
+                    setStatusLabe((++tryingRegisterCount).ToString() + " 번째 시도중", browserNumber);
 
                     /*주석 : hourMinuteTagsCollection
                     XPath 로 해당 태그에 접근해서 onclick 의 함수를 호출해야동작함
@@ -146,7 +148,7 @@ namespace WebContrall_Selenium
                 {
                     // '일시 정지' 버튼이 눌려지면 '다시 동작' 을 누르기 전까지 대기하기
                     if (bShouldProgramPause == true)
-                    { 
+                    {
                         wait = new WebDriverWait(driver, TimeSpan.FromMinutes(60));
                         while (true)
                         {
@@ -157,13 +159,13 @@ namespace WebContrall_Selenium
                                 wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                                 break;
                             }
-                            catch (WebDriverTimeoutException) { continue; } 
+                            catch (WebDriverTimeoutException) { continue; }
                         }
                     }
 
                     // 모든 브라우저 종료
                     if (bShouldExitProgram == true || bResisterSuccess == true)
-                    { 
+                    {
                         ExitBooking(driver);
                         return;
                     }
@@ -200,6 +202,8 @@ namespace WebContrall_Selenium
                             if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
                                 //jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
+                                setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
+                                           purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
                                 bResisterSuccess = true;
                             }
                         }
@@ -208,19 +212,15 @@ namespace WebContrall_Selenium
                             continue;
                         }
 
-                        setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
-                                   purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
-                        // 라벨의 현재 폰트 스타일에 'Bold'를 추가하여 새 폰트 스타일을 구성합니다.
-                        statusLabe.ForeColor = Color.Blue;
-                        FontStyle newStyle = statusLabe.Font.Style | FontStyle.Bold;
-
-                        // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
-                        statusLabe.Font = new Font(statusLabe.Font, newStyle);
-
                         ExitBooking(driver);
                         return;
                     }
                 }
+
+                setStatusLabe("현재 선택하신 날자 시간대 이후에 등록 가능한 시간이 없어서 종료됩니다");
+                bResisterImpossible = true;
+                ExitBooking(driver);
+                return;
             }
         }
 
@@ -269,15 +269,22 @@ namespace WebContrall_Selenium
 
         private async void startButton_Click(object sender, EventArgs e)
         {
-            bShouldExitProgram = false; // 다시 실행 가능한 상태로 설정 true 면 종료됨
             startButton.Enabled = false; // 실행 중에는 실행 버튼을 비활성화
             stopButton.Enabled = true; // 일시 정지 버튼 활성화
             exitBrowsersButton.Enabled = true; // 종료 버튼 활성화
+
+            bShouldExitProgram = false; // 다시 실행 가능한 상태로 설정 true 면 종료됨
             bResisterSuccess = false;  // 성공여부 초기화
+            bResisterImpossible = false;
+
+            //상태폰트 기본폰트로 변경
+            statusLabe.ForeColor = Color.Black;
+            FontStyle newStyle = statusLabe.Font.Style ^ FontStyle.Bold;
+            statusLabe.Font = new Font(statusLabe.Font, newStyle);
 
             List<Task> bookingTasks = new List<Task>();
 
-            for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false; i++)
+            for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false && bResisterImpossible == false; i++)
             { 
                 // ChromeDriver 서비스를 설정하여 콘솔 창을 숨깁니다.
                 ChromeDriverService service = ChromeDriverService.CreateDefaultService();
@@ -310,12 +317,19 @@ namespace WebContrall_Selenium
                 bookingTasks.Add(task); // 작업 목록에 추가합니다.
             }
 
-
             // 모든 예약 작업이 완료되기를 기다립니다.
             await Task.WhenAll(bookingTasks);
 
             if (bShouldExitProgram == true) setStatusLabe("정상적으로 모든 브라우저가 종료됨");
+            else if (bResisterSuccess == true)
+            {
+                // 라벨의 현재 폰트 스타일에 'Bold'를 추가하여 새 폰트 스타일을 구성합니다.
+                statusLabe.ForeColor = Color.Blue;
+                newStyle = statusLabe.Font.Style | FontStyle.Bold;
 
+                // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
+                statusLabe.Font = new Font(statusLabe.Font, newStyle);
+            }
 
             startButton.Enabled = true; // 실행 끝나고 실행 버튼을 활성화
             stopButton.Enabled = false; // 일시 정지 버튼 비활성화
@@ -342,13 +356,13 @@ namespace WebContrall_Selenium
     
         private void setStatusLabe(string status, int browserNumber)
         {
-            if (bResisterSuccess == false)
+            if (bResisterSuccess == false && bResisterImpossible == false)
                 statusLabe.Text = browserNumber.ToString() + "번 브라우저 상태 : " + status;
         }
 
         private void setStatusLabe(string status)
         {
-            if (bResisterSuccess == false)
+            if (bResisterSuccess == false && bResisterImpossible == false)
                 statusLabe.Text = "상태 : " + status;
         }
     }
