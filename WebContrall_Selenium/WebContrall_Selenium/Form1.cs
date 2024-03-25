@@ -99,13 +99,16 @@ namespace WebContrall_Selenium
             */
             IWebElement dayTag = null;
             List<IWebElement> sortedList = null; // 선택된 날자의 모든 예약시간 태그를 담을 List
-
+            //MaxValue 로 했더니 에러나서 1분으로 했음
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            bool haveToRefresh = false;
             while (true)
             {
                 while (dayTag == null) //현재 페이지에 예약해야하는 ‘년－월－일’ 이 존재하지 않는경우 다음 월로 넘어감
                 {
                     try
                     {
+                        //dayTag 의 onClick 이 fnChoiceDate(this, '2024-03-24', 'IMPOSS' -> 'POSS'); 로바뀔때까지 코드 반복실행
                         dayTag = driver.FindElement(By.XPath("//a[contains(@onclick, '" + purposeYearMonthDay + "')]"));
                     }
                     catch (NoSuchElementException)
@@ -114,68 +117,61 @@ namespace WebContrall_Selenium
                     }
                 }
 
-                //MaxValue 로 했더니 에러나서 1분으로 했음
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromMinutes(60));
-
-                while (true)
-                {
-                    try // 대기 버튼이 눌려지면 최대 1분 동안 기다림 
-                    {
-                        wait.Until(wd => !bShouldProgramPause); //bShouldProgramPause 가 false 일때 움직여야함
-                        break;
-                    }
-                    catch (WebDriverTimeoutException) { continue; } // 1분 넘으면 계속 1분씩 연장하면서 기다림
-                }
-
-                if (bShouldExitProgram == true || bResisterSuccess == true)
-                { 
-                    ExitBooking(driver); // 브라우저 종료 버튼 누를시 브라우저 창 이거뿐만아니라 모두가 종료됨
-                    return;
-                }
-
                 try
                 {
-                    //함수를 HTML에 나와있는 이름 그대로 하면 제대로 동작 안하고 이렇게 정확하게 XPath 로 해당 태그에 접근해서 onclick 의 함수를 호출해야동작함
-                    // 이부분에 계속해서 새로고침 하면서
-                    // fnChoiceDate(this, '2024-03-24', 'IMPOSS'); -> fnChoiceDate(this, '2024-03-24', 'POSS'); 로바뀔때까지 대기해야함
                     jsExecutor.ExecuteScript("arguments[0].onclick()", dayTag);
 
+                    setStatusLabe((tryingRegisterCount++).ToString() + " 번째 시도중", browserNumber);
+
                     /*주석 : hourMinuteTagsCollection
-                    해당 HTML 태그
+                    XPath 로 해당 태그에 접근해서 onclick 의 함수를 호출해야동작함
                     < a href = "javascript:void(0);" onclick = "fnChoiceCourseTime(this, 'A', 'VALLEY', '0632');" class="timeBtn golfResvCourseTime">06:32</a>
                     'fnChoiceCourseTime(this,' 가 onclick 에 포함되어있는 a 태그를 찾는다 
                     그것들을 Collection에 추가한다.
                     */
-                    if (bResisterSuccess == false)
-                        setStatusLabe((tryingRegisterCount++).ToString() + " 번째 시도중", browserNumber);
-
-                    // onclick 속성에서 숫자 추출 및 정렬하는 람다식 사용 시간 정렬
                     IReadOnlyCollection<IWebElement> hourMinuteTagsCollection = driver.FindElements(By.XPath("//a[contains(@onclick, 'fnChoiceCourseTime(this,')]"));
+                    
+                    // onclick 속성에서 숫자 추출 및 정렬하는 람다식 사용 시간 정렬
                     sortedList = hourMinuteTagsCollection.Select(tag => new
                     {
                         Element = tag,
                         SortKey = int.TryParse(tag.GetAttribute("onclick").Substring(Math.Max(0, tag.GetAttribute("onclick").Length - 7), 4), out int number) ? number : int.MaxValue
-                    })
-                        .OrderBy(item => item.SortKey)
-                        .Select(item => item.Element)
-                        .ToList();
+                    
+                    }).OrderBy(item => item.SortKey).Select(item => item.Element).ToList();
                 }
-                catch (UnhandledAlertException)
-                {
-                    driver.Navigate().Refresh(); // 날자 클릭후 alert 이 뜨면 페이지 새로고침
+                catch (UnhandledAlertException) { haveToRefresh = true; }
+                catch (NoSuchElementException) { haveToRefresh = true; }
 
-                    //웹이 반응을 하는 상태까지 기다리기 : 최대기다리는 시간 1분
-                    wait.Until(wd => jsExecutor.ExecuteScript("return document.readyState").ToString() == "complete");
-                    dayTag = null; // null 로 설정해놔야 위에 while 문에서 다시 찾음 페이지를 새로고침하면 다시 찾아야됨
-                    continue;
-                }
-                catch (NoSuchElementException)
+                if(haveToRefresh)
                 {
-                    driver.Navigate().Refresh();
+                    // '일시 정지' 버튼이 눌려지면 '다시 동작' 을 누르기 전까지 대기하기
+                    if (bShouldProgramPause == true)
+                    { 
+                        wait = new WebDriverWait(driver, TimeSpan.FromMinutes(60));
+                        while (true)
+                        {
+                            try
+                            {
+                                // 1분 넘으면 계속 1분씩 연장하면서 기다림 여기서 .MaxValue 로 했더니 오류나서 이렇게함
+                                wait.Until(wd => (bShouldProgramPause == false));
+                                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                                break;
+                            }
+                            catch (WebDriverTimeoutException) { continue; } 
+                        }
+                    }
 
-                    //웹이 반응을 하는 상태까지 기다리기 : 최대기다리는 시간 1분
+                    // 모든 브라우저 종료
+                    if (bShouldExitProgram == true || bResisterSuccess == true)
+                    { 
+                        ExitBooking(driver);
+                        return;
+                    }
+
+                    driver.Navigate().Refresh(); //페이지 새로고침
                     wait.Until(wd => jsExecutor.ExecuteScript("return document.readyState").ToString() == "complete");
-                    dayTag = null; // 새로고침하면 새로 요소 찾아야함
+                    dayTag = null; // 페이지를 새로고침하면 요소를 다시 찾아야 함
+                    haveToRefresh = false;
                     continue;
                 }
 
@@ -201,18 +197,9 @@ namespace WebContrall_Selenium
                             // 메시지 수신 동의 거부
                             jsExecutor.ExecuteScript("document.getElementById('send_sms_yn').checked = false;");
 
-                            if (bResisterSuccess == false)
+                            if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
                                 //jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
-                                setStatusLabe( browserNumber.ToString() + "번 브라우저 나이스샷 ! " + 
-                                    purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
-                                // 라벨의 현재 폰트 스타일에 'Bold'를 추가하여 새 폰트 스타일을 구성합니다.
-                                statusLabe.ForeColor = Color.Blue;
-                                FontStyle newStyle = statusLabe.Font.Style | FontStyle.Bold;
-
-                                // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
-                                statusLabe.Font = new Font(statusLabe.Font, newStyle);
-
                                 bResisterSuccess = true;
                             }
                         }
@@ -220,6 +207,15 @@ namespace WebContrall_Selenium
                         {
                             continue;
                         }
+
+                        setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
+                                   purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
+                        // 라벨의 현재 폰트 스타일에 'Bold'를 추가하여 새 폰트 스타일을 구성합니다.
+                        statusLabe.ForeColor = Color.Blue;
+                        FontStyle newStyle = statusLabe.Font.Style | FontStyle.Bold;
+
+                        // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
+                        statusLabe.Font = new Font(statusLabe.Font, newStyle);
 
                         ExitBooking(driver);
                         return;
@@ -339,6 +335,9 @@ namespace WebContrall_Selenium
         private void exitBrowsersButton_Click(object sender, EventArgs e)
         {
             bShouldExitProgram = true;
+            bShouldProgramPause = false;
+
+            stopButton.Text = "일시정지";
         }
     
         private void setStatusLabe(string status, int browserNumber)
