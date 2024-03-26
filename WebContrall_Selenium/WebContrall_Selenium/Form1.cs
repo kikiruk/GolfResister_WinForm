@@ -16,6 +16,7 @@ using System;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Reflection.Metadata;
+using System.Reflection;
 
 //담주화요일 9시30분에 최종테스트 4월 13일 8시 ~ 9시 사이
 
@@ -301,8 +302,11 @@ namespace WebContrall_Selenium
 
             for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false && bResisterImpossible == false; i++)
             { 
+                // 현재 실행 중인 어셈블리의 디렉토리 경로를 구합니다.
+                string driverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); //실행안될시 WebDriverException 발생
+
                 // ChromeDriver 서비스를 설정하여 콘솔 창을 숨깁니다.
-                ChromeDriverService service = ChromeDriverService.CreateDefaultService();
+                ChromeDriverService service = ChromeDriverService.CreateDefaultService(driverPath);
                 service.HideCommandPromptWindow = true; // 콘솔 창 숨기기
 
                 // Chrome 옵션을 설정합니다.
@@ -312,8 +316,7 @@ namespace WebContrall_Selenium
                                                       // window 사이즈를 설정하므로써 눈에 보이지않는 웹이지만 사이즈별로 올수있는 에러방지
                 options.AddArgument("--window-size=1920,1080");
 
-                // 설정된 서비스와 옵션으로 ChromeDriver 인스턴스를 생성합니다.
-                // chrome 브라우저와 소통 하게 해주는 ChromeDriver
+                // ChromeDriver를 headless 모드로 구성하여 인스턴스를 생성합니다.
                 IWebDriver driver = new ChromeDriver(service, options);
 
                 /* 주석 : `IJavaScriptExecutor` 인터페이스를 사용하여 Selenium WebDriver에서 JavaScript 코드를 실행할 수 있습니다.
