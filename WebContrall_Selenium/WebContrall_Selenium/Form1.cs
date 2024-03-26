@@ -149,7 +149,7 @@ namespace WebContrall_Selenium
                     // '일시 정지' 버튼이 눌려지면 '다시 동작' 을 누르기 전까지 대기하기
                     if (bShouldProgramPause == true)
                     {
-                        wait = new WebDriverWait(driver, TimeSpan.FromMinutes(60));
+                        wait = new WebDriverWait(driver, TimeSpan.FromMinutes(1));
                         while (true)
                         {
                             try
