@@ -15,6 +15,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+using System.Reflection.Metadata;
 
 //담주화요일 9시30분에 최종테스트 4월 13일 8시 ~ 9시 사이
 
@@ -211,15 +212,17 @@ namespace WebContrall_Selenium
                             if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
                                 jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
+
+                                //예약 완료시 나타나는 태그의 Id를 찾아서 없으면 재 실행한다
+                                IWebElement reserveLayer = driver.FindElement(By.Id("reserve_layer"));
+                                if (reserveLayer == null) continue;
+
                                 setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
                                            purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
                                 bResisterSuccess = true;
                             }
                         }
-                        catch (UnhandledAlertException)
-                        {
-                            continue;
-                        }
+                        catch (UnhandledAlertException) { continue; }
 
                         ExitBooking(driver);
                         return;
