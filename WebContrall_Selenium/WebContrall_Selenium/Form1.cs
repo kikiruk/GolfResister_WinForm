@@ -143,19 +143,19 @@ namespace WebContrall_Selenium
                     그것들을 Collection에 추가한다.
                     */
                     IReadOnlyCollection<IWebElement> hourMinuteTagsCollection = driver.FindElements(By.XPath("//a[contains(@onclick, 'fnChoiceCourseTime(this,')]"));
-                    
+
                     // onclick 속성에서 숫자 추출 및 정렬하는 람다식 사용 시간 정렬
                     sortedList = hourMinuteTagsCollection.Select(tag => new
                     {
                         Element = tag,
                         SortKey = int.TryParse(tag.GetAttribute("onclick").Substring(Math.Max(0, tag.GetAttribute("onclick").Length - 7), 4), out int number) ? number : int.MaxValue
-                    
+
                     }).OrderBy(item => item.SortKey).Select(item => item.Element).ToList();
                 }
                 catch (UnhandledAlertException) { haveToRefresh = true; }
                 catch (NoSuchElementException) { haveToRefresh = true; }
 
-                if(haveToRefresh)
+                if (haveToRefresh)
                 {
                     // '일시 정지' 버튼이 눌려지면 '다시 동작' 을 누르기 전까지 대기하기
                     if (bShouldProgramPause == true)
@@ -213,7 +213,7 @@ namespace WebContrall_Selenium
                             if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
                                 jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
-
+                                
                                 //예약 완료시 나타나는 태그의 Id를 찾아서 없으면 재 실행한다
                                 IWebElement reserveLayer = driver.FindElement(By.Id("reserve_layer"));
                                 if (reserveLayer == null) continue;
@@ -298,7 +298,10 @@ namespace WebContrall_Selenium
             FontStyle newStyle = statusLabe.Font.Style ^ FontStyle.Bold;
             statusLabe.Font = new Font(statusLabe.Font, newStyle);
 
-            List<Task> bookingTasks = new List<Task>();
+            //도담이 사진 초기화
+            pictureBox1.Image = null;
+
+            List <Task> bookingTasks = new List<Task>();
 
             for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false && bResisterImpossible == false; i++)
             { 
@@ -347,6 +350,9 @@ namespace WebContrall_Selenium
 
                 // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
                 statusLabe.Font = new Font(statusLabe.Font, newStyle);
+
+                pictureBox1.Image = WebContrall_Selenium.Properties.Resources.dodam;
+                label1.BackColor = Color.Transparent;
             }
 
             startButton.Enabled = true; // 실행 끝나고 실행 버튼을 활성화
@@ -374,7 +380,7 @@ namespace WebContrall_Selenium
 
             stopButton.Text = "일시정지";
         }
-    
+
         private void setStatusLabe(string status, int browserNumber)
         {
             if (bResisterSuccess == false && bResisterImpossible == false)
@@ -385,6 +391,11 @@ namespace WebContrall_Selenium
         {
             if (bResisterSuccess == false && bResisterImpossible == false)
                 statusLabe.Text = "상태 : " + status;
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
