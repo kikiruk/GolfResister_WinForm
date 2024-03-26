@@ -17,6 +17,7 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Reflection.Metadata;
 using System.Reflection;
+using WebDriverManager.Helpers;
 
 //담주화요일 9시30분에 최종테스트 4월 13일 8시 ~ 9시 사이
 
@@ -60,8 +61,32 @@ namespace WebContrall_Selenium
 
             setStatusLabe("실행 전");
 
-            // WebDriverManager를 사용하여 ChromeDriver를 자동으로 설정합니다.
-            new DriverManager().SetUpDriver(new ChromeConfig());
+            string basePath = AppContext.BaseDirectory;
+            string chromeFolder = Path.Combine(basePath, "Chrome");
+
+            // Chrome 폴더가 존재하면 삭제
+            if (Directory.Exists(chromeFolder))
+            {
+                Directory.Delete(chromeFolder, true);
+            }
+
+            //new DriverManager().SetUpDriver(new ChromeConfig()); 이코드는 무조건 최신드라이버만 다운로드하지만,
+            //이 코드는 현재 크롬버젼도 고려하여서 다운로드한다.
+            // 다운로드된 ChromeDriver의 정확한 파일 경로를 구성합니다.
+            string driverPath = new DriverManager().SetUpDriver(new ChromeConfig(), VersionResolveStrategy.MatchingBrowser);
+
+            string destDriverPath = Path.Combine(basePath, "chromedriver.exe");
+
+            // 만약 이미 대상 위치에 파일이 존재한다면, 덮어쓰기 전에 삭제
+            if (File.Exists(destDriverPath))
+            {
+                File.Delete(destDriverPath);
+            }
+
+            // 다운로드된 chromedriver.exe를 실행 파일 위치로 복사
+            File.Copy(driverPath, destDriverPath);
+
+            Console.WriteLine("ChromeDriver setup complete.");
         }
 
         private void LoginAndGoToReservationAndReady(IWebDriver driver, IJavaScriptExecutor jsExecutor)
@@ -188,6 +213,7 @@ namespace WebContrall_Selenium
                     continue;
                 }
 
+                //이 루프문을 들어오면 등록이 완료되거나 등록이 안되는 상태인게 판단이 나기에, 무조건 종료됨
                 foreach (IWebElement hourMinuteTag in sortedList)
                 {
                     //onClickVaue 는 onclick 시 호출되는자바스크립트 함수를 문자열로 나타낸것이다.
@@ -212,12 +238,13 @@ namespace WebContrall_Selenium
 
                             if (bResisterSuccess == false || bShouldExitProgram == false)
                             {
-                                jsExecutor.ExecuteScript("fnReservation()"); // 테스트할때는 실제 등록되는걸 막기위해 주석을 할것
+                                /*******************테스트 시, 주석할 부분*******************/
+                                jsExecutor.ExecuteScript("fnReservation()"); 
                                 
                                 //예약 완료시 나타나는 태그의 Id를 찾아서 없으면 재 실행한다
                                 IWebElement reserveLayer = driver.FindElement(By.Id("reserve_layer"));
                                 if (reserveLayer == null) continue;
-
+                                /**********************************************************/
                                 setStatusLabe(browserNumber.ToString() + "번 브라우저 나이스샷 ! " +
                                            purposeYearMonthDay + " " + (hourMinuteToClick / 100).ToString() + ":" + (hourMinuteToClick % 100).ToString() + " 예약완료");
                                 bResisterSuccess = true;
@@ -299,14 +326,14 @@ namespace WebContrall_Selenium
             statusLabe.Font = new Font(statusLabe.Font, newStyle);
 
             //도담이 사진 초기화
-            pictureBox1.Image = null;
+            dodamPicture.Image = null;
 
-            List <Task> bookingTasks = new List<Task>();
+            List<Task> bookingTasks = new List<Task>();
 
             for (int i = 0; i < selectBrowserVolume.Value && bShouldExitProgram == false && bResisterSuccess == false && bResisterImpossible == false; i++)
-            { 
+            {
                 // 현재 실행 중인 어셈블리의 디렉토리 경로를 구합니다.
-                string driverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); //실행안될시 WebDriverException 발생
+                string driverPath = AppContext.BaseDirectory; //실행안될시 WebDriverException 발생
 
                 // ChromeDriver 서비스를 설정하여 콘솔 창을 숨깁니다.
                 ChromeDriverService service = ChromeDriverService.CreateDefaultService(driverPath);
@@ -351,7 +378,8 @@ namespace WebContrall_Selenium
                 // 새로운 스타일을 적용하여 라벨의 폰트를 업데이트합니다.
                 statusLabe.Font = new Font(statusLabe.Font, newStyle);
 
-                pictureBox1.Image = WebContrall_Selenium.Properties.Resources.dodam;
+                //도담이 사진 팝업
+                dodamPicture.Image = WebContrall_Selenium.Properties.Resources.dodam;
                 label1.BackColor = Color.Transparent;
             }
 
@@ -392,11 +420,5 @@ namespace WebContrall_Selenium
             if (bResisterSuccess == false && bResisterImpossible == false)
                 statusLabe.Text = "상태 : " + status;
         }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
-    

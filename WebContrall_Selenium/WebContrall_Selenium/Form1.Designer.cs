@@ -40,9 +40,9 @@ namespace WebContrall_Selenium
             selectBrowserVolume = new NumericUpDown();
             selectBrowserVolumeLable = new Label();
             exitBrowsersButton = new System.Windows.Forms.Button();
-            pictureBox1 = new PictureBox();
+            dodamPicture = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)selectBrowserVolume).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dodamPicture).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -54,7 +54,6 @@ namespace WebContrall_Selenium
             label1.Size = new Size(390, 80);
             label1.TabIndex = 0;
             label1.Text = "날자 : 선택 날자로 고정\r\n시간 : 선택 시간과 같거나 이후 가장 가까운시간으로 예약됨";
-            label1.Click += label1_Click;
             // 
             // dateLable
             // 
@@ -141,13 +140,13 @@ namespace WebContrall_Selenium
             exitBrowsersButton.UseVisualStyleBackColor = true;
             exitBrowsersButton.Click += exitBrowsersButton_Click;
             // 
-            // pictureBox1
+            // dodamPicture
             // 
-            pictureBox1.Location = new Point(409, 12);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(387, 377);
-            pictureBox1.TabIndex = 12;
-            pictureBox1.TabStop = false;
+            dodamPicture.Location = new Point(409, 12);
+            dodamPicture.Name = "dodamPicture";
+            dodamPicture.Size = new Size(387, 377);
+            dodamPicture.TabIndex = 12;
+            dodamPicture.TabStop = false;
             // 
             // Form1
             // 
@@ -165,14 +164,14 @@ namespace WebContrall_Selenium
             Controls.Add(TotalBrowservolumeLable);
             Controls.Add(startButton);
             Controls.Add(dateTimePicker);
-            Controls.Add(pictureBox1);
+            Controls.Add(dodamPicture);
             Font = new Font("Malgun Gothic", 12F, FontStyle.Regular, GraphicsUnit.Point, 129);
             Margin = new Padding(4);
             Name = "Form1";
             Text = "석호형 선물 ★";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)selectBrowserVolume).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dodamPicture).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -189,6 +188,6 @@ namespace WebContrall_Selenium
         private NumericUpDown selectBrowserVolume;
         private Label selectBrowserVolumeLable;
         private System.Windows.Forms.Button exitBrowsersButton;
-        private PictureBox pictureBox1;
+        private PictureBox dodamPicture;
     }
 }
