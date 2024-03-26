@@ -12,7 +12,9 @@ using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
 using AngleSharp.Dom;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 
 //담주화요일 9시30분에 최종테스트 4월 13일 8시 ~ 9시 사이
 
@@ -20,6 +22,13 @@ namespace WebContrall_Selenium
 {
     public partial class Form1 : Form
     {
+        // SetThreadExecutionState Win32 API 함수를 선언합니다.
+        [DllImport("kernel32.dll")]
+        public static extern uint SetThreadExecutionState(uint esFlags);
+
+        public const uint ES_CONTINUOUS = 0x80000000;
+        public const uint ES_SYSTEM_REQUIRED = 0x00000001;
+
         private int BrowserNumber;
         private int TotalBrowservolume;
         private int tryingRegisterCount;
@@ -269,6 +278,9 @@ namespace WebContrall_Selenium
 
         private async void startButton_Click(object sender, EventArgs e)
         {
+            // 시스템이 자동으로 절전 모드로 들어가지 않도록 설정합니다.
+            SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+
             startButton.Enabled = false; // 실행 중에는 실행 버튼을 비활성화
             stopButton.Enabled = true; // 일시 정지 버튼 활성화
             exitBrowsersButton.Enabled = true; // 종료 버튼 활성화
@@ -336,6 +348,9 @@ namespace WebContrall_Selenium
             exitBrowsersButton.Enabled = false; // 종료 버튼 비활성화
             BrowserNumber = 1; // 브라우저의 번호를 나타내는  BrowserNumber 초기화
             tryingRegisterCount = 0; // 시도 횟수 카운트 초기화
+
+            // 프로그램이 종료되기 직전에 전원 설정을 원래대로 복원합니다.
+            SetThreadExecutionState(ES_CONTINUOUS);
         }
 
         private void stopButton_Click(object sender, EventArgs e)
